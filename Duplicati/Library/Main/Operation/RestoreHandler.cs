@@ -138,7 +138,7 @@ namespace Duplicati.Library.Main.Operation
                         m_options.RawOptions["version"] = string.Join(",", Enumerable.Range(0, m_options.Version.Length).Select(x => x.ToString()));
                 }
 
-                if (m_options.RestoreLegacy)
+                if (m_options.RestoreMode == Options.RestoreStrategy.HighPerformance)
                     DoRun(backendManager, db, filter, m_result.TaskControl.ProgressToken).Await();
                 else
                     DoRunNew(backendManager, db, filter, m_result.TaskControl.ProgressToken).Await();
@@ -412,7 +412,10 @@ namespace Duplicati.Library.Main.Operation
 
         /// <summary>
         /// Perform the restore operation.
-        /// This is the legacy implementation, which performs the restore in a single thread. Kept as in case the new implementation fails.
+        ///
+        /// This is the legacy implementation, which performs the restore in a
+        /// single thread. Kept as in case the new implementation fails and
+        /// this implementation has a lower memory and disk footprint.
         /// </summary>
         /// <param name="database">The database containing information about the restore.</param>
         /// <param name="filter">The filter of which files to restore.</param>

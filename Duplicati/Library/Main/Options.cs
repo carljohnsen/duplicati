@@ -200,6 +200,22 @@ namespace Duplicati.Library.Main
         }
 
         /// <summary>
+        /// The possible settings for the restore strategy
+        /// </summary>
+        public enum RestoreStrategy
+        {
+            /// <summary>
+            /// Restore the files one volume at a time
+            /// </summary>
+            LowMemory,
+
+            /// <summary>
+            /// Restore the target files in parallel
+            /// </summary>
+            HighPerformance
+        }
+
+        /// <summary>
         /// The possible settings for the hardlink strategy
         /// </summary>
         public enum HardlinkStrategy
@@ -475,7 +491,7 @@ namespace Duplicati.Library.Main
                     new CommandLineArgument("restore-cache-max", CommandLineArgument.ArgumentType.Size, Strings.Options.RestoreCacheMaxShort, Strings.Options.RestoreCacheMaxLong, DEFAULT_RESTORE_CACHE_MAX),
                     new CommandLineArgument("restore-cache-evict", CommandLineArgument.ArgumentType.Integer, Strings.Options.RestoreCacheEvictShort, Strings.Options.RestoreCacheEvictLong, DEFAULT_RESTORE_CACHE_EVICT.ToString()),
                     new CommandLineArgument("restore-file-processors", CommandLineArgument.ArgumentType.Integer, Strings.Options.RestoreFileprocessorsShort, Strings.Options.RestoreFileprocessorsLong, DEFAULT_RESTORE_FILE_PROCESSORS.ToString()),
-                    new CommandLineArgument("restore-legacy", CommandLineArgument.ArgumentType.Boolean, Strings.Options.RestoreLegacyShort, Strings.Options.RestoreLegacyLong, "false"),
+                    new CommandLineArgument("restore-strategy", CommandLineArgument.ArgumentType.Enumeration, Strings.Options.RestoreModeShort, Strings.Options.RestoreModeLong, Enum.GetName(RestoreStrategy.HighPerformance), null, Enum.GetNames(typeof(RestoreStrategy))),
                     new CommandLineArgument("restore-preallocate-size", CommandLineArgument.ArgumentType.Boolean, Strings.Options.RestorePreallocateSizeShort, Strings.Options.RestorePreallocateSizeLong, "false"),
                     new CommandLineArgument("restore-volume-decompressors", CommandLineArgument.ArgumentType.Integer, Strings.Options.RestoreVolumeDecompressorsShort, Strings.Options.RestoreVolumeDecompressorsLong, DEFAULT_RESTORE_VOLUME_DECOMPRESSORS.ToString()),
                     new CommandLineArgument("restore-volume-decryptors", CommandLineArgument.ArgumentType.Integer, Strings.Options.RestoreVolumeDecryptorsShort, Strings.Options.RestoreVolumeDecryptorsLong, DEFAULT_RESTORE_VOLUME_DECRYPTORS.ToString()),
@@ -2150,11 +2166,20 @@ namespace Duplicati.Library.Main
         }
 
         /// <summary>
-        /// Gets whether to use the legacy restore method
+        /// Gets strategy for running restore.
         /// </summary>
-        public bool RestoreLegacy
+        public RestoreStrategy RestoreMode
         {
-            get { return Library.Utility.Utility.ParseBoolOption(m_options, "restore-legacy"); }
+            get
+            {
+                if (!m_options.TryGetValue("restore-mode", out string strategy))
+                    strategy = "HighPerformance";
+
+                if (!Enum.TryParse(strategy, true, out RestoreStrategy r))
+                    r = RestoreStrategy.HighPerformance;
+
+                return r;
+            }
         }
 
         /// <summary>
