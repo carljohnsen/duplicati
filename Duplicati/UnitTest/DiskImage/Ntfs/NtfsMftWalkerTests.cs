@@ -634,4 +634,52 @@ public class NtfsMftWalkerTests
         // System metafiles should still be present
         Assert.IsTrue(walker.ClusterToTimestampMap.Count >= 0);
     }
+
+    [Test]
+    public async Task Test_NtfsMftWalker_JournalClusters_AlwaysAllocated()
+    {
+        var bootSectorData = CreateValidBootSector();
+        var bootSector = new NtfsBootSector(bootSectorData);
+
+        // Create bitmap with all clusters allocated
+        var bitmapData = CreateBitmapData([.. Enumerable.Repeat(true, (int)bootSector.TotalClusters)]);
+        var bitmap = new NtfsBitmap(bootSector, bitmapData);
+
+        // MFT record 0 describes the MFT itself - place at cluster 100
+        var mftRecord0 = CreateMftRecord(
+            DateTime.UtcNow.ToFileTimeUtc(),
+            [(100, 20)],
+            inUse: true);
+
+        // MFT record 2 is $LogFile - the NTFS transaction journal
+        // Its clusters must always be backed up as they change on every write
+        var mftRecord2 = CreateMftRecord(
+            DateTime.UtcNow.ToFileTimeUtc(),
+            [(50, 10)], // $LogFile at clusters 50-59
+            inUse: true);
+
+        byte[]? GetMftRecord(long recordNumber)
+        {
+            return recordNumber switch
+            {
+                0 => mftRecord0,
+                2 => mftRecord2,
+                _ => null
+            };
+        }
+
+        var before = DateTime.UtcNow.AddSeconds(-1);
+        var walker = new NtfsMftWalker(bootSector, bitmap, GetMftRecord);
+        await walker.WalkAsync();
+        var after = DateTime.UtcNow.AddSeconds(1);
+
+        // $LogFile clusters (50-59) should be mapped with a current timestamp
+        for (var cluster = 50; cluster < 60; cluster++)
+        {
+            Assert.IsTrue(walker.ClusterToTimestampMap.ContainsKey(cluster), $"$LogFile cluster {cluster} should be in map");
+            var timestamp = walker.ClusterToTimestampMap[cluster];
+            Assert.GreaterOrEqual(timestamp, before, $"$LogFile cluster {cluster} timestamp should be >= before");
+            Assert.LessOrEqual(timestamp, after, $"$LogFile cluster {cluster} timestamp should be <= after");
+        }
+    }
 }
