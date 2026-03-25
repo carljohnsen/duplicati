@@ -13,7 +13,7 @@ namespace Duplicati.UnitTest.DiskImage.IntegrationTests;
 
 #nullable enable
 
-public partial class DiskImageTests : BasicSetupHelper
+public class ParsingTests : DiskImageTests
 {
     [Test]
     [Category("DiskImage")]

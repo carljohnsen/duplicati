@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Duplicati.UnitTest.DiskImage.IntegrationTests;
 
-public partial class DiskImageTests : BasicSetupHelper
+public class FullRoundTripTests : DiskImageTests
 {
     #region GPT Single Partition
 

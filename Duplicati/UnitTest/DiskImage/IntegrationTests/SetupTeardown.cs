@@ -14,13 +14,13 @@ namespace Duplicati.UnitTest.DiskImage.IntegrationTests;
 [Platform("Win,MacOsX,Linux")]
 public partial class DiskImageTests : BasicSetupHelper
 {
-    private string _sourceImagePath = null!;
-    private string _restoreImagePath = null!;
-    private string _sourceMountPath = null!;
-    private string _restoreMountPath = null!;
-    private IDiskImageHelper _diskHelper = null!;
+    protected string _sourceImagePath = null!;
+    protected string _restoreImagePath = null!;
+    protected string _sourceMountPath = null!;
+    protected string _restoreMountPath = null!;
+    protected IDiskImageHelper _diskHelper = null!;
 
-    private const long MiB = 1024 * 1024;
+    protected const long MiB = 1024 * 1024;
 
     /// <summary>
     /// Sets up the test environment before each test.

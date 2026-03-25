@@ -17,7 +17,7 @@ public partial class DiskImageTests : BasicSetupHelper
     /// <param name="physicalDrivePath">The physical drive path to backup.</param>
     /// <param name="treatFilesystemAsUnknown">If true, treats filesystem as unknown (forces raw block-based backup).</param>
     /// <returns>The backup results.</returns>
-    private IBackupResults RunBackup(string physicalDrivePath, bool treatFilesystemAsUnknown = false)
+    protected IBackupResults RunBackup(string physicalDrivePath, bool treatFilesystemAsUnknown = false)
     {
         var options = new Dictionary<string, string>(TestOptions);
         options["enable-module"] = "diskimage";
@@ -38,7 +38,7 @@ public partial class DiskImageTests : BasicSetupHelper
     /// </summary>
     /// <param name="restoreDrivePath">The physical drive path to restore to.</param>
     /// <returns>The restore results.</returns>
-    private IRestoreResults RunRestore(string restoreDrivePath)
+    protected IRestoreResults RunRestore(string restoreDrivePath)
     {
         var options = new Dictionary<string, string>(TestOptions);
         options["restore-path"] = $"@diskimage://{restoreDrivePath}";
@@ -56,7 +56,7 @@ public partial class DiskImageTests : BasicSetupHelper
     /// </summary>
     /// <param name="sourcePath">The source directory path.</param>
     /// <param name="restorePath">The restored directory path.</param>
-    private void CompareDirectories(string sourcePath, string restorePath)
+    protected void CompareDirectories(string sourcePath, string restorePath)
     {
         var options = new EnumerationOptions
         {
@@ -118,7 +118,7 @@ public partial class DiskImageTests : BasicSetupHelper
     /// <param name="target">The backup target URL.</param>
     /// <param name="options">The options to use when accessing the backup.</param>
     /// <param name="partitions">The expected partitions and their sizes.</param>
-    private void VerifyGeometryMetadata(string target, Dictionary<string, string> options, (FileSystemType, long)[] partitions)
+    protected void VerifyGeometryMetadata(string target, Dictionary<string, string> options, (FileSystemType, long)[] partitions)
     {
         TestContext.Progress.WriteLine("Verifying geometry metadata...");
 
@@ -205,7 +205,7 @@ public partial class DiskImageTests : BasicSetupHelper
     /// </summary>
     /// <param name="sourceDrivePath">The physical drive path of the source disk.</param>
     /// <param name="restoreDrivePath">The physical drive path of the restored disk.</param>
-    private void VerifyPartitionTableMatches(string sourceDrivePath, string restoreDrivePath)
+    protected void VerifyPartitionTableMatches(string sourceDrivePath, string restoreDrivePath)
     {
         TestContext.Progress.WriteLine("Verifying partition table matches...");
 

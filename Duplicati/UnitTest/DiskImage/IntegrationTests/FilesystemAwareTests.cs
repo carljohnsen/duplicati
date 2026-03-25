@@ -10,7 +10,7 @@ using NUnit.Framework;
 
 namespace Duplicati.UnitTest.DiskImage.IntegrationTests;
 
-public partial class DiskImageTests : BasicSetupHelper
+public class FilesystemAwareTests : DiskImageTests
 {
     /// <summary>
     /// Tests that incremental backup with filesystem awareness skips unchanged blocks.
