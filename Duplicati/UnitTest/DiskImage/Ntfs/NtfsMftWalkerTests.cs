@@ -197,21 +197,22 @@ public class NtfsMftWalkerTests
         {
             // Non-resident $DATA attribute
             // Header:
-            // 0x00: Type (4 bytes)
-            // 0x04: Length (4 bytes)
+            // 0x00: Attribute type (4 bytes)
+            // 0x04: Attribute length (4 bytes)
             // 0x08: Non-resident flag (1 byte)
             // 0x09: Name length (1 byte)
             // 0x0A: Name offset (2 bytes)
-            // 0x0C: Starting VCN (8 bytes)
-            // 0x14: Ending VCN (8 bytes)
-            // 0x1C: Run offset (2 bytes)
-            // 0x1E: Compression unit size (2 bytes)
-            // 0x20: Padding (4 bytes)
-            // 0x24: Allocated size (8 bytes)
-            // 0x2C: Data size (8 bytes)
-            // 0x34: Initialized size (8 bytes)
-            // 0x3C: Compressed size (8 bytes) - only if compressed
-            // Data runs follow
+            // 0x0C: Flags (2 bytes)
+            // 0x0E: Attribute ID (2 bytes)
+            // 0x10: Starting VCN (8 bytes)
+            // 0x18: Ending VCN (8 bytes)
+            // 0x20: Run offset (2 bytes) - offset to data run list from start of attribute
+            // 0x22: Compression unit size (2 bytes)
+            // 0x24: Padding (4 bytes)
+            // 0x28: Allocated size (8 bytes)
+            // 0x30: Data size (8 bytes)
+            // 0x38: Initialized size (8 bytes)
+            // 0x40: Data runs start at offset specified by run offset field. If the attribute is named, then the name starts here. Otherwise, the data runs start here.
 
             var attrHeaderSize = 0x40;
             var dataRunBytes = CreateDataRunBytes(dataRuns);
@@ -225,17 +226,19 @@ public class NtfsMftWalkerTests
             record[currentOffset + 8] = 0x01; // Non-resident
             record[currentOffset + 9] = 0x00; // No name
             BinaryPrimitives.WriteUInt16LittleEndian(record.AsSpan(currentOffset + 0x0A, 2), 0x40); // Name offset
-            BinaryPrimitives.WriteInt64LittleEndian(record.AsSpan(currentOffset + 0x0C, 8), 0); // Starting VCN
+            BinaryPrimitives.WriteUInt16LittleEndian(record.AsSpan(currentOffset + 0x0C, 2), 0); // Flags
+            BinaryPrimitives.WriteUInt16LittleEndian(record.AsSpan(currentOffset + 0x0E, 2), 0); // Attribute ID
+            BinaryPrimitives.WriteInt64LittleEndian(record.AsSpan(currentOffset + 0x10, 8), 0); // Starting VCN
 
             // Calculate ending VCN from data runs
             var totalClusters = dataRuns.Sum(r => r.length);
-            BinaryPrimitives.WriteInt64LittleEndian(record.AsSpan(currentOffset + 0x14, 8), totalClusters - 1); // Ending VCN
-            BinaryPrimitives.WriteUInt16LittleEndian(record.AsSpan(currentOffset + 0x1C, 2), (ushort)attrHeaderSize); // Run offset
-            BinaryPrimitives.WriteUInt16LittleEndian(record.AsSpan(currentOffset + 0x1E, 2), 0); // Compression unit size
-            BinaryPrimitives.WriteUInt32LittleEndian(record.AsSpan(currentOffset + 0x20, 4), 0); // Padding
-            BinaryPrimitives.WriteInt64LittleEndian(record.AsSpan(currentOffset + 0x24, 8), totalClusters * 4096); // Allocated size
-            BinaryPrimitives.WriteInt64LittleEndian(record.AsSpan(currentOffset + 0x2C, 8), totalClusters * 4096); // Data size
-            BinaryPrimitives.WriteInt64LittleEndian(record.AsSpan(currentOffset + 0x34, 8), totalClusters * 4096); // Initialized size
+            BinaryPrimitives.WriteInt64LittleEndian(record.AsSpan(currentOffset + 0x18, 8), totalClusters - 1); // Ending VCN
+            BinaryPrimitives.WriteUInt16LittleEndian(record.AsSpan(currentOffset + 0x20, 2), (ushort)attrHeaderSize); // Run offset
+            BinaryPrimitives.WriteUInt16LittleEndian(record.AsSpan(currentOffset + 0x22, 2), 0); // Compression unit size
+            BinaryPrimitives.WriteUInt32LittleEndian(record.AsSpan(currentOffset + 0x24, 4), 0); // Padding
+            BinaryPrimitives.WriteInt64LittleEndian(record.AsSpan(currentOffset + 0x28, 8), totalClusters * 4096); // Allocated size
+            BinaryPrimitives.WriteInt64LittleEndian(record.AsSpan(currentOffset + 0x30, 8), totalClusters * 4096); // Data size
+            BinaryPrimitives.WriteInt64LittleEndian(record.AsSpan(currentOffset + 0x38, 8), totalClusters * 4096); // Initialized size
 
             // Copy data runs
             dataRunBytes.CopyTo(record, currentOffset + attrHeaderSize);
