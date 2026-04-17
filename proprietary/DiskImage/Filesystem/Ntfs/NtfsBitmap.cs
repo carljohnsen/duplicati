@@ -274,17 +274,19 @@ internal class NtfsBitmap
         // 0x08: Non-resident flag (1 byte)
         // 0x09: Name length (1 byte)
         // 0x0A: Name offset (2 bytes)
-        // 0x0C: Starting VCN (8 bytes)
-        // 0x14: Ending VCN (8 bytes)
-        // 0x1C: Run offset (2 bytes) - offset to data run list from start of attribute
-        // 0x1E: Compression unit size (2 bytes)
-        // 0x20: Padding (4 bytes)
-        // 0x24: Allocated size (8 bytes)
-        // 0x2C: Data size (8 bytes)
-        // 0x34: Initialized size (8 bytes)
-        // 0x3C: Compressed size (8 bytes) - only if compressed
+        // 0x0C: Flags (2 bytes)
+        // 0x0E: Attribute ID (2 bytes)
+        // 0x10: Starting VCN (8 bytes)
+        // 0x18: Ending VCN (8 bytes)
+        // 0x20: Run offset (2 bytes) - offset to data run list from start of attribute
+        // 0x22: Compression unit size (2 bytes)
+        // 0x24: Padding (4 bytes)
+        // 0x28: Allocated size (8 bytes)
+        // 0x30: Data size (8 bytes)
+        // 0x38: Initialized size (8 bytes)
+        // 0x40: Data runs start at offset specified by run offset field. If the attribute is named, then the name starts here. Otherwise, the data runs start here.
 
-        var runOffset = BinaryPrimitives.ReadUInt16LittleEndian(recordData.AsSpan(attributeOffset + 0x1C, 2));
+        var runOffset = BinaryPrimitives.ReadUInt16LittleEndian(recordData.AsSpan(attributeOffset + 0x20, 2));
         var dataSize = BinaryPrimitives.ReadUInt64LittleEndian(recordData.AsSpan(attributeOffset + 0x30, 8));
 
         // Parse the data runs

@@ -437,7 +437,7 @@ internal class NtfsMftWalker
                 if (isNonResident)
                 {
                     // Non-resident attribute - parse data runs
-                    var runOffset = BinaryPrimitives.ReadUInt16LittleEndian(recordData.AsSpan(attributeOffset + 0x1C, 2));
+                    var runOffset = BinaryPrimitives.ReadUInt16LittleEndian(recordData.AsSpan(attributeOffset + 0x20, 2));
                     return NtfsBitmap.ParseDataRuns(recordData, attributeOffset + runOffset);
                 }
                 else
