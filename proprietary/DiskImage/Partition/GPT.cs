@@ -394,7 +394,7 @@ internal class GPT : IPartitionTable
         PartitionType partitionType = DeterminePartitionType(typeGuid);
 
         // Determine filesystem type based on partition name and known patterns
-        FileSystemType fsType = DetermineFilesystemType(startOffset, (int)size, typeGuid.ToString(), CancellationToken.None);
+        FileSystemType fsType = DetermineFilesystemType(startOffset, (int)size, typeGuid.ToString().ToUpper(), CancellationToken.None);
 
         return new BasePartition
         {
@@ -427,7 +427,7 @@ internal class GPT : IPartitionTable
     /// Determines the filesystem type based on the partition type GUID and partition data.
     /// </summary>
     /// <param name="name">The partition name.</param>
-    /// <param name="typeGuid">The partition type GUID.</param>
+    /// <param name="typeGuid">The partition type GUID string in upper case.</param>
     /// <returns>The corresponding <see cref="FileSystemType"/>.</returns>
     private FileSystemType DetermineFilesystemType(long offset, int size, string typeGuid, CancellationToken cancellationToken)
     {
