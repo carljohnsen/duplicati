@@ -18,11 +18,16 @@ public class FilesystemAwareTests : DiskImageTests
     /// performs second backup, and verifies only changed blocks were processed.
     /// </summary>
     [TestCase((int)(50 * MiB), PartitionTableType.GPT, FileSystemType.FAT32)]
+    [TestCase((int)(50 * MiB), PartitionTableType.GPT, FileSystemType.NTFS)]
     [TestCase((int)(50 * MiB), PartitionTableType.GPT, FileSystemType.Unknown)]
     [Category("DiskImage")]
     [Category("DiskImageFileSystem")]
     public async Task Test_FileSystem_IncrementalBackup_UnchangedBlocks_Skipped(int size, PartitionTableType tableType, FileSystemType fsType)
     {
+        var (isSupported, reason) = _diskHelper.IsFileSystemTypeSupported(fsType);
+        if (!isSupported)
+            Assert.Ignore(reason);
+
         await TestContext.Progress.WriteLineAsync($"Test: {fsType} Incremental Backup - Unchanged Blocks Skipped");
 
         // When testing Unknown filesystem, format source as FAT32 to allow test data generation,
@@ -209,11 +214,16 @@ public class FilesystemAwareTests : DiskImageTests
     /// backs it up, and verifies the backup size is significantly smaller than the disk size.
     /// </summary>
     [TestCase((int)(50 * MiB), PartitionTableType.GPT, FileSystemType.FAT32)]
+    [TestCase((int)(50 * MiB), PartitionTableType.GPT, FileSystemType.NTFS)]
     [TestCase((int)(50 * MiB), PartitionTableType.GPT, FileSystemType.Unknown)]
     [Category("DiskImage")]
     [Category("DiskImageFileSystem")]
     public async Task Test_FileSystem_UnallocatedSpace_CompressesWell(int size, PartitionTableType tableType, FileSystemType fsType)
     {
+        var (isSupported, reason) = _diskHelper.IsFileSystemTypeSupported(fsType);
+        if (!isSupported)
+            Assert.Ignore(reason);
+
         await TestContext.Progress.WriteLineAsync($"Test: {fsType} Unallocated Space Compression");
 
         // When testing Unknown filesystem, format source as FAT32 to allow test data generation,
@@ -289,11 +299,16 @@ public class FilesystemAwareTests : DiskImageTests
     /// Creates a disk filled with data and verifies the backup reads the full disk.
     /// </summary>
     [TestCase((int)(50 * MiB), PartitionTableType.GPT, FileSystemType.FAT32)]
+    [TestCase((int)(50 * MiB), PartitionTableType.GPT, FileSystemType.NTFS)]
     [TestCase((int)(50 * MiB), PartitionTableType.GPT, FileSystemType.Unknown)]
     [Category("DiskImage")]
     [Category("DiskImageFileSystem")]
     public async Task Test_FileSystem_FullDisk_AllBlocksAllocated(int size, PartitionTableType tableType, FileSystemType fsType)
     {
+        var (isSupported, reason) = _diskHelper.IsFileSystemTypeSupported(fsType);
+        if (!isSupported)
+            Assert.Ignore(reason);
+
         await TestContext.Progress.WriteLineAsync($"Test: {fsType} Full Disk - All Blocks Allocated");
 
         // When testing Unknown filesystem, format source as FAT32 to allow test data generation,
